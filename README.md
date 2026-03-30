@@ -1,16 +1,13 @@
-## Hi there 👋
+# Crypto Trading Journal Pro – Website
 
-<!--
-**ctj-pro-website/ctj-pro-website** is a ✨ _special_ ✨ repository because its `README.md` (this file) appears on your GitHub profile.
+This is the official landing page for the Crypto Trading Journal Pro desktop application.
 
-Here are some ideas to get you started:
+**Live site:** [https://your-username.github.io/repo-name](https://your-username.github.io/repo-name)
 
-- 🔭 I’m currently working on ...
-- 🌱 I’m currently learning ...
-- 👯 I’m looking to collaborate on ...
-- 🤔 I’m looking for help with ...
-- 💬 Ask me about ...
-- 📫 How to reach me: ...
-- 😄 Pronouns: ...
-- ⚡ Fun fact: ...
--->
+## Tech used
+- HTML/CSS/JavaScript
+- EmailJS for contact form
+- Chart.js for demo equity chart
+
+## How to update
+Edit `index.html` directly and push changes.
