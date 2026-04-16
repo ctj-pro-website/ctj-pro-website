@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Admin Portal | Crypto Trading Journal Pro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: radial-gradient(circle at 10% 20%, #0f172a, #030712);
+            color: #e2e8f0;
+            padding: 2rem 1.5rem;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .header h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #a5b4fc, #38bdf8);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            letter-spacing: -0.5px;
+        }
+        .header p {
+            color: #94a3b8;
+            margin-top: 0.5rem;
+        }
+        /* Cards */
+        .card {
+            background: rgba(30, 41, 59, 0.6);
+            backdrop-filter: blur(12px);
+            border-radius: 28px;
+            padding: 1.8rem;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(129, 140, 248, 0.2);
+            transition: transform 0.2s ease, box-shadow 0.2s;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        }
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 20px 30px -10px rgba(0,0,0,0.3);
+            border-color: rgba(129, 140, 248, 0.5);
+        }
+        .card h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #cbd5e1;
+        }
+        .card h2 i {
+            color: #818cf8;
+        }
+        /* Form inputs */
+        .form-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            align-items: flex-end;
+            margin-bottom: 1rem;
+        }
+        .input-field {
+            flex: 1;
+            min-width: 200px;
+        }
+        .input-field label {
+            display: block;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+            color: #94a3b8;
+            margin-bottom: 0.3rem;
+        }
+        input, button {
+            padding: 0.7rem 1rem;
+            border-radius: 40px;
+            border: none;
+            font-size: 0.9rem;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.2s;
+        }
+        input {
+            background: #0f172a;
+            border: 1px solid #334155;
+            color: #f1f5f9;
+            width: 100%;
+        }
+        input:focus {
+            outline: none;
+            border-color: #818cf8;
+            box-shadow: 0 0 0 2px rgba(129, 140, 248, 0.3);
+        }
+        button {
+            background: linear-gradient(135deg, #4f46e5, #6366f1);
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            padding: 0.7rem 1.5rem;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        }
+        button:hover {
+            transform: scale(1.02);
+            background: linear-gradient(135deg, #6366f1, #818cf8);
+            box-shadow: 0 4px 12px rgba(99,102,241,0.4);
+        }
+        .btn-outline {
+            background: transparent;
+            border: 1px solid #818cf8;
+            color: #cbd5e1;
+            box-shadow: none;
+        }
+        .btn-outline:hover {
+            background: rgba(129,140,248,0.1);
+            color: white;
+        }
+        .btn-danger {
+            background: linear-gradient(135deg, #dc2626, #ef4444);
+        }
+        .btn-danger:hover {
+            background: linear-gradient(135deg, #ef4444, #f87171);
+        }
+        /* Key input row */
+        .key-row {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .key-row input {
+            flex: 2;
+        }
+        .status-badge {
+            display: inline-block;
+            background: #10b98120;
+            color: #34d399;
+            border-radius: 40px;
+            padding: 0.2rem 0.8rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        /* Table */
+        .table-wrapper {
+            overflow-x: auto;
+            border-radius: 20px;
+            background: rgba(15, 23, 42, 0.5);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+        th, td {
+            padding: 1rem 0.8rem;
+            text-align: left;
+            border-bottom: 1px solid #334155;
+        }
+        th {
+            background: #0f172a;
+            color: #a5b4fc;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+        }
+        tr:hover td {
+            background: rgba(129, 140, 248, 0.05);
+        }
+        .status-active {
+            color: #34d399;
+            font-weight: 600;
+        }
+        .status-revoked {
+            color: #f87171;
+            font-weight: 600;
+        }
+        .revoke-btn {
+            background: #dc2626;
+            padding: 0.3rem 1rem;
+            border-radius: 40px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .revoke-btn:hover {
+            background: #ef4444;
+        }
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #94a3b8;
+        }
+        .error-msg {
+            color: #f87171;
+            background: #dc262620;
+            padding: 0.7rem;
+            border-radius: 40px;
+            margin-top: 0.5rem;
+            font-size: 0.85rem;
+        }
+        .success-msg {
+            color: #34d399;
+            background: #10b98120;
+            padding: 0.7rem;
+            border-radius: 40px;
+            margin-top: 0.5rem;
+        }
+        footer {
+            text-align: center;
+            margin-top: 2rem;
+            font-size: 0.75rem;
+            color: #475569;
+        }
+        @media (max-width: 700px) {
+            body { padding: 1rem; }
+            .card { padding: 1.2rem; }
+            .form-group { flex-direction: column; align-items: stretch; }
+            .key-row { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>🔐 Admin Portal</h1>
+        <p>Manage licenses securely — create, revoke, and monitor</p>
+    </div>
+
+    <!-- Admin Key Section -->
+    <div class="card" id="keyCard">
+        <h2><i>🔑</i> Authentication</h2>
+        <div class="key-row">
+            <input type="password" id="adminKeyInput" placeholder="Enter ADMIN_RESET_KEY" autocomplete="off">
+            <button id="setKeyBtn">Authenticate</button>
+        </div>
+        <div id="keyStatus" style="margin-top: 0.5rem;"></div>
+    </div>
+
+    <!-- Create License Section (hidden until auth) -->
+    <div class="card" id="createCard" style="display: none;">
+        <h2><i>➕</i> Create Test License</h2>
+        <div class="form-group">
+            <div class="input-field">
+                <label>Email address</label>
+                <input type="email" id="licenseEmail" placeholder="customer@example.com">
+            </div>
+            <div class="input-field">
+                <label>License Key (optional)</label>
+                <input type="text" id="licenseKey" placeholder="Auto-generate if empty">
+            </div>
+            <button id="createBtn">Create License</button>
+        </div>
+        <div id="createResult"></div>
+    </div>
+
+    <!-- List Licenses Section -->
+    <div class="card" id="listCard" style="display: none;">
+        <h2><i>📋</i> All Licenses</h2>
+        <div style="margin-bottom: 1rem;">
+            <button id="refreshListBtn" class="btn-outline">⟳ Refresh List</button>
+        </div>
+        <div id="licensesTable" class="table-wrapper"></div>
+    </div>
+    <footer>🔒 Your admin key is stored only in your browser's session. Keep it secure.</footer>
+</div>
+
+<script>
+    const BACKEND_URL = 'https://ctj-pro-backend-1.onrender.com'; // Update if needed
+    let adminKey = localStorage.getItem('adminKey') || '';
+
+    // DOM elements
+    const adminKeyInput = document.getElementById('adminKeyInput');
+    const setKeyBtn = document.getElementById('setKeyBtn');
+    const keyStatusDiv = document.getElementById('keyStatus');
+    const createCard = document.getElementById('createCard');
+    const listCard = document.getElementById('listCard');
+    const createBtn = document.getElementById('createBtn');
+    const refreshListBtn = document.getElementById('refreshListBtn');
+    const createResult = document.getElementById('createResult');
+    const licensesTableDiv = document.getElementById('licensesTable');
+
+    function showSections() {
+        if (adminKey) {
+            createCard.style.display = 'block';
+            listCard.style.display = 'block';
+            adminKeyInput.value = adminKey;
+            keyStatusDiv.innerHTML = '<span class="status-badge">✅ Authenticated</span>';
+            fetchLicenses();
+        } else {
+            createCard.style.display = 'none';
+            listCard.style.display = 'none';
+            keyStatusDiv.innerHTML = '';
+        }
+    }
+
+    setKeyBtn.addEventListener('click', () => {
+        const newKey = adminKeyInput.value.trim();
+        if (!newKey) {
+            keyStatusDiv.innerHTML = '<div class="error-msg">❌ Please enter a valid admin key</div>';
+            return;
+        }
+        adminKey = newKey;
+        localStorage.setItem('adminKey', adminKey);
+        showSections();
+    });
+
+    // Create license
+    createBtn.addEventListener('click', async () => {
+        const email = document.getElementById('licenseEmail').value.trim();
+        let licenseKey = document.getElementById('licenseKey').value.trim();
+        if (!email) {
+            createResult.innerHTML = '<div class="error-msg">❌ Email is required</div>';
+            return;
+        }
+        if (!licenseKey) {
+            const randomPart = Math.random().toString(36).substring(2, 10).toUpperCase();
+            licenseKey = `CTJP-TEST-${randomPart}`;
+            document.getElementById('licenseKey').value = licenseKey;
+        }
+        createResult.innerHTML = '<div class="loading">⏳ Creating license...</div>';
+        try {
+            const response = await fetch(`${BACKEND_URL}/admin/create-test-license`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    admin_key: adminKey,
+                    email: email,
+                    license_key: licenseKey
+                })
+            });
+            const data = await response.json();
+            if (response.ok && data.success) {
+                createResult.innerHTML = `<div class="success-msg">✅ License created: <strong>${data.license_key}</strong></div>`;
+                fetchLicenses();
+                document.getElementById('licenseEmail').value = '';
+                document.getElementById('licenseKey').value = '';
+            } else {
+                createResult.innerHTML = `<div class="error-msg">❌ Error: ${data.error || data.message || 'Unknown'}</div>`;
+            }
+        } catch (err) {
+            createResult.innerHTML = `<div class="error-msg">❌ Request failed: ${err.message}</div>`;
+        }
+    });
+
+    // Fetch licenses
+    async function fetchLicenses() {
+        if (!adminKey) return;
+        licensesTableDiv.innerHTML = '<div class="loading">⏳ Loading licenses...</div>';
+        try {
+            const response = await fetch(`${BACKEND_URL}/admin/list-licenses`, {
+                headers: { 'Authorization': `Bearer ${adminKey}` }
+            });
+            if (!response.ok) {
+                const text = await response.text();
+                throw new Error(`HTTP ${response.status}: ${text.substring(0, 100)}`);
+            }
+            const data = await response.json();
+            if (data.licenses && data.licenses.length) {
+                renderTable(data.licenses);
+            } else {
+                licensesTableDiv.innerHTML = '<div class="loading">📭 No licenses found.</div>';
+            }
+        } catch (err) {
+            licensesTableDiv.innerHTML = `<div class="error-msg">❌ Failed to load: ${err.message}</div>`;
+        }
+    }
+
+    function renderTable(licenses) {
+        const table = document.createElement('table');
+        table.innerHTML = `
+            <thead>
+                <tr>
+                    <th>Email</th><th>License Key</th><th>Used By</th><th>Status</th><th>Activations</th><th>Created</th><th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="licenseTableBody"></tbody>
+        `;
+        const tbody = table.querySelector('#licenseTableBody');
+        licenses.forEach(lic => {
+            const row = tbody.insertRow();
+            row.insertCell(0).innerText = lic.email || '-';
+            row.insertCell(1).innerText = lic.license_key;
+            row.insertCell(2).innerText = lic.used_by_username || '-';
+            const statusCell = row.insertCell(3);
+            statusCell.innerText = lic.status;
+            statusCell.className = lic.status === 'active' ? 'status-active' : 'status-revoked';
+            row.insertCell(4).innerText = lic.activation_count || 0;
+            row.insertCell(5).innerText = lic.created_at ? new Date(lic.created_at).toLocaleDateString() : '-';
+            const actionCell = row.insertCell(6);
+            if (lic.status === 'active') {
+                const revokeBtn = document.createElement('button');
+                revokeBtn.innerText = 'Revoke';
+                revokeBtn.className = 'revoke-btn';
+                revokeBtn.onclick = () => revokeLicense(lic.license_key);
+                actionCell.appendChild(revokeBtn);
+            } else {
+                actionCell.innerText = 'Revoked';
+                actionCell.style.color = '#94a3b8';
+            }
+        });
+        licensesTableDiv.innerHTML = '';
+        licensesTableDiv.appendChild(table);
+    }
+
+    async function revokeLicense(licenseKey) {
+        if (!confirm(`⚠️ Revoke license ${licenseKey}? This cannot be undone.`)) return;
+        try {
+            const response = await fetch(`${BACKEND_URL}/revoke-license`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ admin_key: adminKey, license_key: licenseKey })
+            });
+            const data = await response.json();
+            if (response.ok && data.status === 'success') {
+                alert('✅ License revoked successfully');
+                fetchLicenses();
+            } else {
+                alert(`❌ Revoke failed: ${data.error || data.message || 'Unknown'}`);
+            }
+        } catch (err) {
+            alert(`Error: ${err.message}`);
+        }
+    }
+
+    refreshListBtn.addEventListener('click', fetchLicenses);
+
+    // Initial load
+    if (adminKey) {
+        showSections();
+    } else {
+        createCard.style.display = 'none';
+        listCard.style.display = 'none';
+    }
+</script>
+</body>
+</html>
