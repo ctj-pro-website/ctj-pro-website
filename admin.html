@@ -126,6 +126,8 @@
         th {
             background: #0f172a;
             color: #a5b4fc;
+            position: sticky;
+            top: 0;
         }
         tr:hover td { background: rgba(129,140,248,0.05); }
         .status-active { color: #34d399; font-weight: 600; }
@@ -135,6 +137,21 @@
             padding: 0.3rem 1rem;
             border-radius: 40px;
             font-size: 0.75rem;
+        }
+        .search-bar {
+            margin-bottom: 1rem;
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .search-bar input {
+            flex: 2;
+            min-width: 250px;
+        }
+        .search-bar button {
+            background: #4f46e5;
+            padding: 0.6rem 1.5rem;
         }
         .loading { text-align: center; padding: 2rem; color: #94a3b8; }
         .error-msg { color: #f87171; background: #dc262620; padding: 0.7rem; border-radius: 40px; margin-top: 0.5rem; }
@@ -159,7 +176,7 @@
         <p>Manage licenses — session only (key cleared when tab is closed)</p>
     </div>
 
-    <!-- Top bar with logout button (visible only when authenticated) -->
+    <!-- Top bar with logout button -->
     <div class="top-bar" id="logoutContainer" style="display: none;">
         <button id="logoutBtn" class="btn-outline" style="background: #dc2626; border: none;">🚪 Logout & Clear Key</button>
     </div>
@@ -199,8 +216,11 @@
         <!-- List Licenses Card -->
         <div class="card" id="listCard">
             <h2><i>📋</i> All Licenses</h2>
-            <div style="margin-bottom: 1rem;">
-                <button id="refreshListBtn" class="btn-outline">⟳ Refresh List</button>
+            <!-- Search Bar -->
+            <div class="search-bar">
+                <input type="text" id="searchInput" placeholder="🔍 Search by email, license key, or username..." autocomplete="off">
+                <button id="clearSearchBtn" class="btn-outline" style="background: #334155;">Clear</button>
+                <button id="refreshListBtn" class="btn-outline">⟳ Refresh</button>
             </div>
             <div id="licensesTable" class="table-wrapper"></div>
         </div>
@@ -211,9 +231,8 @@
 
 <script>
     const BACKEND_URL = 'https://ctj-pro-backend-1.onrender.com'; // Update if needed
-
-    // Use sessionStorage (clears when tab is closed)
     let adminKey = sessionStorage.getItem('adminKey') || '';
+    let allLicenses = []; // Store all licenses for filtering
 
     const authCard = document.getElementById('authCard');
     const adminPanels = document.getElementById('adminPanels');
@@ -226,6 +245,8 @@
     const createResult = document.getElementById('createResult');
     const licensesTableDiv = document.getElementById('licensesTable');
     const logoutBtn = document.getElementById('logoutBtn');
+    const searchInput = document.getElementById('searchInput');
+    const clearSearchBtn = document.getElementById('clearSearchBtn');
 
     function showAuthenticatedUI() {
         authCard.style.display = 'none';
@@ -240,24 +261,22 @@
         logoutContainer.style.display = 'none';
         adminKeyInput.value = '';
         keyStatusDiv.innerHTML = '';
-        // Clear sessionStorage
         sessionStorage.removeItem('adminKey');
         adminKey = '';
+        allLicenses = [];
+        licensesTableDiv.innerHTML = '';
     }
 
-    // Logout
     logoutBtn.addEventListener('click', () => {
         showUnauthenticatedUI();
     });
 
-    // Authenticate
     setKeyBtn.addEventListener('click', () => {
         const newKey = adminKeyInput.value.trim();
         if (!newKey) {
             keyStatusDiv.innerHTML = '<div class="error-msg">❌ Please enter a valid admin key</div>';
             return;
         }
-        // Test the key by calling a simple endpoint (e.g., /admin/test-db)
         fetch(`${BACKEND_URL}/admin/test-db`, {
             headers: { 'Authorization': `Bearer ${newKey}` }
         })
@@ -276,7 +295,6 @@
         });
     });
 
-    // Create license
     createBtn.addEventListener('click', async () => {
         const email = document.getElementById('licenseEmail').value.trim();
         let licenseKey = document.getElementById('licenseKey').value.trim();
@@ -314,7 +332,6 @@
         }
     });
 
-    // Fetch licenses
     async function fetchLicenses() {
         if (!adminKey) return;
         licensesTableDiv.innerHTML = '<div class="loading">⏳ Loading licenses...</div>';
@@ -328,8 +345,10 @@
             }
             const data = await response.json();
             if (data.licenses && data.licenses.length) {
-                renderTable(data.licenses);
+                allLicenses = data.licenses;
+                renderTable(allLicenses);
             } else {
+                allLicenses = [];
                 licensesTableDiv.innerHTML = '<div class="loading">📭 No licenses found.</div>';
             }
         } catch (err) {
@@ -338,9 +357,17 @@
     }
 
     function renderTable(licenses) {
+        if (!licenses.length) {
+            licensesTableDiv.innerHTML = '<div class="loading">🔍 No matching licenses found.</div>';
+            return;
+        }
         const table = document.createElement('table');
         table.innerHTML = `
-            <thead><tr><th>Email</th><th>License Key</th><th>Used By</th><th>Status</th><th>Activations</th><th>Created</th><th>Action</th></tr></thead>
+            <thead>
+                <tr>
+                    <th>Email</th><th>License Key</th><th>Used By</th><th>Status</th><th>Activations</th><th>Created</th><th>Action</th>
+                </tr>
+            </thead>
             <tbody id="licenseTableBody"></tbody>
         `;
         const tbody = table.querySelector('#licenseTableBody');
@@ -370,6 +397,27 @@
         licensesTableDiv.appendChild(table);
     }
 
+    // Client-side search filter
+    function filterTable() {
+        const searchTerm = searchInput.value.trim().toLowerCase();
+        if (!searchTerm) {
+            renderTable(allLicenses);
+            return;
+        }
+        const filtered = allLicenses.filter(lic => {
+            return (lic.email && lic.email.toLowerCase().includes(searchTerm)) ||
+                   (lic.license_key && lic.license_key.toLowerCase().includes(searchTerm)) ||
+                   (lic.used_by_username && lic.used_by_username.toLowerCase().includes(searchTerm));
+        });
+        renderTable(filtered);
+    }
+
+    searchInput.addEventListener('input', filterTable);
+    clearSearchBtn.addEventListener('click', () => {
+        searchInput.value = '';
+        renderTable(allLicenses);
+    });
+
     async function revokeLicense(licenseKey) {
         if (!confirm(`⚠️ Revoke license ${licenseKey}? This cannot be undone.`)) return;
         try {
@@ -392,9 +440,8 @@
 
     refreshListBtn.addEventListener('click', fetchLicenses);
 
-    // Initial check: if we have a key in sessionStorage, test it and auto-login
+    // Initial check
     if (adminKey) {
-        // Test the key
         fetch(`${BACKEND_URL}/admin/test-db`, {
             headers: { 'Authorization': `Bearer ${adminKey}` }
         })
